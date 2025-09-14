@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { Task } from '@/data/tasks';
 import TodoItem from './TodoItem';
+import { DragEndEvent } from '@dnd-kit/core'; // Import missing type
 
-// A small form component to avoid repetition
+// This is the small form component you provided. No changes are needed here.
 const AddItemForm: React.FC<{
   placeholder: string;
   buttonText: string;
@@ -39,7 +40,7 @@ const AddItemForm: React.FC<{
   );
 };
 
-
+// The interface needs to be updated to accept the onDeleteItem and onDragEnd functions.
 interface TodoListProps {
   phaseId: number;
   tasks: Task[];
@@ -48,10 +49,12 @@ interface TodoListProps {
   showDates: boolean;
   onAddTask: (phaseId: number, text: string, isSubHeading: boolean, afterTaskId: number) => void;
   onUndoRecordDate: (id: number) => void;
+  onDeleteItem: (id: number) => void; // Added missing prop
+  onDragEnd: (event: DragEndEvent, phaseId: number) => void; // Added missing prop
 }
 
-const TodoList: React.FC<TodoListProps> = ({ phaseId, tasks, onToggle, onRecordDate, showDates, onAddTask, onUndoRecordDate }) => {
-  // We'll create groups of tasks to render the "add" buttons correctly
+const TodoList: React.FC<TodoListProps> = ({ phaseId, tasks, onToggle, onRecordDate, showDates, onAddTask, onUndoRecordDate, onDeleteItem }) => {
+  // Your existing logic for creating task groups is preserved.
   const taskGroups: (Task | { type: 'add-todo' | 'add-subheading'; parentId: number })[] = [];
 
   tasks.forEach((task, index) => {
@@ -62,11 +65,9 @@ const TodoList: React.FC<TodoListProps> = ({ phaseId, tasks, onToggle, onRecordD
       taskGroups.push({ type: 'add-subheading', parentId: task.id });
     }
     
-    // Condition to add a form at the end of a subcategory list
     if (task.isSubHeading && (!nextTask || nextTask.isHeading)) {
       taskGroups.push({ type: 'add-todo', parentId: task.id });
     } else if (!task.isHeading && !task.isSubHeading && (!nextTask || nextTask.isHeading || nextTask.isSubHeading)) {
-        // Find the subheading this item belongs to
         let parentSubheadingId = -1;
         for (let i = index; i >= 0; i--) {
             if (tasks[i].isSubHeading) {
@@ -80,14 +81,12 @@ const TodoList: React.FC<TodoListProps> = ({ phaseId, tasks, onToggle, onRecordD
     }
   });
 
-  // Remove duplicate "add" forms for the same parent
   const uniqueTaskGroups = taskGroups.filter((item, index, self) => {
       if ('type' in item) {
           return index === self.findIndex(t => 'type' in t && t.type === item.type && t.parentId === item.parentId);
       }
       return true;
   });
-
 
   return (
     <div>
@@ -121,7 +120,10 @@ const TodoList: React.FC<TodoListProps> = ({ phaseId, tasks, onToggle, onRecordD
               onToggle={onToggle}
               onRecordDate={onRecordDate}
               showDates={showDates}
-              onUndoRecordDate={onUndoRecordDate} 
+              onUndoRecordDate={onUndoRecordDate}
+              onDeleteItem={onDeleteItem} // The missing prop is now passed here.
+              // The onAddItemClick prop is no longer needed by TodoItem, so it's not included.
+              // The onMouseEnter prop for the hover feature is also not needed with this logic.
             />
           );
         }
