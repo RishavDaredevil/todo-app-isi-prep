@@ -10,7 +10,8 @@ interface TodoItemProps {
   onRecordDate: (id: number) => void;
   onUndoRecordDate: (id: number) => void;
   onDeleteItem: (id: number) => void;
-  onAddItemClick: (type: 'todo' | 'subheading') => void;
+  // This is the fix: onAddItemClick is now optional, which resolves the build error.
+  onAddItemClick?: (type: 'todo' | 'subheading') => void; 
   showDates: boolean;
 }
 
@@ -39,7 +40,8 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onToggle, onRecordDate, onUnd
           <button onClick={() => onDeleteItem(task.id)} className="absolute -left-6 top-1/2 -translate-y-1/2 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
           <h2 className="text-xl font-bold my-2 text-white">{task.text}</h2>
         </div>
-        <button onClick={() => onAddItemClick('subheading')} className="text-gray-600 hover:text-green-500 opacity-0 group-hover:opacity-100 transition-opacity text-xl font-bold">+</button>
+        {/* The '+' button is kept for your current logic but will only render if onAddItemClick is passed */}
+        {onAddItemClick && <button onClick={() => onAddItemClick('subheading')} className="text-gray-600 hover:text-green-500 opacity-0 group-hover:opacity-100 transition-opacity text-xl font-bold">+</button>}
       </div>
     );
   }
@@ -51,7 +53,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onToggle, onRecordDate, onUnd
           <button onClick={() => onDeleteItem(task.id)} className="absolute -left-6 top-1/2 -translate-y-1/2 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
           <h3 className="text-lg font-semibold my-1 text-gray-300">{task.text}</h3>
         </div>
-        <button onClick={() => onAddItemClick('todo')} className="text-gray-600 hover:text-green-500 opacity-0 group-hover:opacity-100 transition-opacity text-xl font-bold">+</button>
+        {onAddItemClick && <button onClick={() => onAddItemClick('todo')} className="text-gray-600 hover:text-green-500 opacity-0 group-hover:opacity-100 transition-opacity text-xl font-bold">+</button>}
       </div>
     );
   }
